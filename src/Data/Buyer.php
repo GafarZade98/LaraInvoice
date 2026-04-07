@@ -6,12 +6,8 @@ class Buyer
 {
     private string $name = '';
     private string $email = '';
-    private string $taxNumber = '';
-
-    private string $country = '';
-    private string $postalCode = '';
-    private string $addressLine = '';
-
+    private string $address = '';
+    private string $phone = '';
     private array $customFields = [];
 
     public static function make(): static
@@ -31,27 +27,15 @@ class Buyer
         return $this;
     }
 
-    public function country(string $country): static
+    public function address(string $address): static
     {
-        $this->country = $country;
+        $this->address = $address;
         return $this;
     }
 
-    public function postalCode(string $postalCode): static
+    public function phone(string $phone): static
     {
-        $this->postalCode = $postalCode;
-        return $this;
-    }
-
-    public function addressLine(string $addressLine): static
-    {
-        $this->addressLine = $addressLine;
-        return $this;
-    }
-
-    public function taxNumber(string $taxNumber): static
-    {
-        $this->taxNumber = $taxNumber;
+        $this->phone = $phone;
         return $this;
     }
 
@@ -71,28 +55,23 @@ class Buyer
         return $this->email;
     }
 
-    public function getCountry(): string
+    public function getAddress(): string
     {
-        return $this->country;
+        return $this->address;
     }
 
-    public function getPostalCode(): string
+    public function getPhone(): string
     {
-        return $this->postalCode;
+        return $this->phone;
     }
 
-    public function getAddressLine(): string
+    public function getCustomFields(): array
     {
-        return $this->addressLine;
+        return $this->customFields;
     }
 
-    public function getTaxNumber(): string
+    public function getCustomField(string $key): ?string
     {
-        return $this->taxNumber;
-    }
-
-    public function getCustomField($key): string
-    {
-        return $this->customFields[$key] ?? '';
+        return $this->customFields[$key] ?? null;
     }
 }

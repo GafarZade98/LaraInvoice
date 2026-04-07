@@ -4,16 +4,24 @@ namespace GafarZade98\LaraInvoice\Data;
 
 class InvoiceItem
 {
+    private string $name = '';
     private string $description = '';
-    private string $note = '';
     private string $extraDescription = '';
     private float $quantity = 1;
     private float $unitPrice = 0;
-    private float $taxRate = 0;
+    private ?Tax $tax = null;
+    private ?Discount $discount = null;
+    private ?float $total = null;
 
     public static function make(): static
     {
         return new static();
+    }
+
+    public function name(string $name): static
+    {
+        $this->name = $name;
+        return $this;
     }
 
     public function description(string $description): static
@@ -40,10 +48,27 @@ class InvoiceItem
         return $this;
     }
 
-    public function taxRate(float $taxRate): static
+    public function tax(Tax $tax): static
     {
-        $this->unitPrice = $taxRate;
+        $this->tax = $tax;
         return $this;
+    }
+
+    public function discount(Discount $discount): static
+    {
+        $this->discount = $discount;
+        return $this;
+    }
+
+    public function total(float $total): static
+    {
+        $this->total = $total;
+        return $this;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function getDescription(): string
@@ -51,9 +76,9 @@ class InvoiceItem
         return $this->description;
     }
 
-    public function getNote(): string
+    public function getExtraDescription(): string
     {
-        return $this->note;
+        return $this->extraDescription;
     }
 
     public function getQuantity(): float
@@ -66,13 +91,32 @@ class InvoiceItem
         return $this->unitPrice;
     }
 
-    public function getTotal(): float
+    public function getTax(): ?Tax
     {
-        return $this->quantity * $this->unitPrice;
+        return $this->tax;
     }
 
-    public function getTaxRate(): float
+    public function getDiscount(): ?Discount
     {
-        return $this->taxRate;
+        return $this->discount;
+    }
+
+    public function getTotal(): float
+    {
+        if ($this->total !== null) {
+            return $this->total;
+        }
+
+        $base = $this->quantity * $this->unitPrice;
+
+        if ($this->discount) {
+            $base -= $this->discount->getAmount();
+        }
+
+        if ($this->tax) {
+            $base += $this->tax->getAmount();
+        }
+
+        return $base;
     }
 }
