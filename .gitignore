@@ -2,9 +2,10 @@
 /node_modules/
 /.idea/
 /.vscode/
-/.DS_Store
+.DS_Store
 /composer.lock
 /.phpunit.result.cache
 /.phpunit.cache/
 /coverage/
 *.log
+/tests/output/

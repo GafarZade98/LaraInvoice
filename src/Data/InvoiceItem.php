@@ -9,8 +9,8 @@ class InvoiceItem
     private string $extraDescription = '';
     private float $quantity = 1;
     private float $unitPrice = 0;
-    private ?Tax $tax = null;
-    private ?Discount $discount = null;
+    private array $taxes = [];
+    private array $discounts = [];
     private ?float $total = null;
 
     public static function make(): static
@@ -48,15 +48,27 @@ class InvoiceItem
         return $this;
     }
 
-    public function tax(Tax $tax): static
+    public function addTax(Tax $tax): static
     {
-        $this->tax = $tax;
+        $this->taxes[] = $tax;
         return $this;
     }
 
-    public function discount(Discount $discount): static
+    public function taxes(array $taxes): static
     {
-        $this->discount = $discount;
+        $this->taxes = $taxes;
+        return $this;
+    }
+
+    public function addDiscount(Discount $discount): static
+    {
+        $this->discounts[] = $discount;
+        return $this;
+    }
+
+    public function discounts(array $discounts): static
+    {
+        $this->discounts = $discounts;
         return $this;
     }
 
@@ -91,14 +103,16 @@ class InvoiceItem
         return $this->unitPrice;
     }
 
-    public function getTax(): ?Tax
+    /** @return Tax[] */
+    public function getTaxes(): array
     {
-        return $this->tax;
+        return $this->taxes;
     }
 
-    public function getDiscount(): ?Discount
+    /** @return Discount[] */
+    public function getDiscounts(): array
     {
-        return $this->discount;
+        return $this->discounts;
     }
 
     public function getTotal(): float
@@ -107,16 +121,22 @@ class InvoiceItem
             return $this->total;
         }
 
-        $base = $this->quantity * $this->unitPrice;
+        $lineTotal      = $this->quantity * $this->unitPrice;
+        $discountedBase = $lineTotal;
 
-        if ($this->discount) {
-            $base -= $this->discount->getAmount();
+        foreach ($this->discounts as $discount) {
+            $discountedBase -= $discount->isPercentage()
+                ? $lineTotal * ($discount->getRate() / 100)
+                : $discount->getAmount();
         }
 
-        if ($this->tax) {
-            $base += $this->tax->getAmount();
+        $taxTotal = 0.0;
+        foreach ($this->taxes as $tax) {
+            $taxTotal += $tax->getRate() > 0
+                ? $discountedBase * ($tax->getRate() / 100)
+                : $tax->getAmount();
         }
 
-        return $base;
+        return $discountedBase + $taxTotal;
     }
 }

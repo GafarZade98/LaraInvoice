@@ -1,5 +1,5 @@
 {
-    "name": "gafarzade98/lara-invoice",
+    "name": "gafarzade98/invoice",
     "description": "Laravel Invoice Generator — SVG to PDF",
     "type": "library",
     "license": "MIT",
@@ -15,22 +15,30 @@
         }
     ],
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": "^8.2",
         "illuminate/support": "^10.0|^11.0|^12.0",
-        "barryvdh/laravel-dompdf": "^3.0"
+        "illuminate/filesystem": "^10.0|^11.0|^12.0",
+        "illuminate/http": "^10.0|^11.0|^12.0",
+        "laratusk/larasvg": "^1.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0|^9.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
         "phpunit/phpunit": "^10.0|^11.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GafarZade98\\LaraInvoice\\Tests\\": "tests/"
+        }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Gafarzade98\\LaraInvoice\\InvoiceServiceProvider"
+                "GafarZade98\\LaraInvoice\\InvoiceServiceProvider"
             ],
             "aliases": {
-                "Invoice": "Gafarzade98\\LaraInvoice\\Facades\\Invoice"
+                "LaraInvoice": "GafarZade98\\LaraInvoice\\Facades\\Invoice"
             }
         }
     }

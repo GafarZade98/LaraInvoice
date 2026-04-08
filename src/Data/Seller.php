@@ -4,11 +4,11 @@ namespace GafarZade98\LaraInvoice\Data;
 
 class Seller
 {
-    private string $name = '';
-    private string $email = '';
-    private string $address = '';
-    private string $phone = '';
-    private array $customFields = [];
+    private string   $name    = '';
+    private string   $email   = '';
+    private string   $phone   = '';
+    private ?Address $address = null;
+    private array    $customFields = [];
 
     public static function make(): static
     {
@@ -27,15 +27,19 @@ class Seller
         return $this;
     }
 
-    public function address(string $address): static
-    {
-        $this->address = $address;
-        return $this;
-    }
-
     public function phone(string $phone): static
     {
         $this->phone = $phone;
+        return $this;
+    }
+
+    /** Accept a full Address object or a plain string (treated as the street line). */
+    public function address(string|Address $address): static
+    {
+        $this->address = $address instanceof Address
+            ? $address
+            : Address::make()->address($address);
+
         return $this;
     }
 
@@ -55,14 +59,14 @@ class Seller
         return $this->email;
     }
 
-    public function getAddress(): string
-    {
-        return $this->address;
-    }
-
     public function getPhone(): string
     {
         return $this->phone;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
     }
 
     public function getCustomFields(): array

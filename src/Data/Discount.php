@@ -5,9 +5,8 @@ namespace GafarZade98\LaraInvoice\Data;
 class Discount
 {
     private string $name = 'Discount';
-    private string $type = 'percentage';
+    private string $type = 'fixed';
     private float $value = 0;
-    private float $amount = 0;
 
     public static function make(): static
     {
@@ -32,12 +31,6 @@ class Discount
         return $this;
     }
 
-    public function amount(float $amount): static
-    {
-        $this->amount = $amount;
-        return $this;
-    }
-
     public function getName(): string
     {
         return $this->name;
@@ -53,9 +46,19 @@ class Discount
         return $this->value;
     }
 
+    /**
+     * For percentage discounts: the rate (e.g. 10 = 10%).
+     * For fixed discounts: the currency amount.
+     * Both read from $value — use ->value() setter for either case.
+     */
     public function getAmount(): float
     {
-        return $this->amount;
+        return $this->value;
+    }
+
+    public function getRate(): float
+    {
+        return $this->value;
     }
 
     public function isPercentage(): bool
