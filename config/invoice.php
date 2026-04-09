@@ -67,24 +67,4 @@ return [
             'postcode' => env('INVOICE_SELLER_POSTCODE', ''),
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default Buyer
-    |--------------------------------------------------------------------------
-    */
-    'buyer' => [
-        'name'  => env('INVOICE_BUYER_NAME', ''),
-        'email' => env('INVOICE_BUYER_EMAIL', ''),
-        'phone' => env('INVOICE_BUYER_PHONE', ''),
-
-        'address' => [
-            'address'  => env('INVOICE_BUYER_ADDRESS', ''),
-            'city'     => env('INVOICE_BUYER_CITY', ''),
-            'state'    => env('INVOICE_BUYER_STATE', ''),
-            'country'  => env('INVOICE_BUYER_COUNTRY', ''),
-            'postcode' => env('INVOICE_BUYER_POSTCODE', ''),
-        ],
-    ],
-
 ];
