@@ -3,6 +3,8 @@
 namespace GafarZade98\LaraInvoice\Tests\Unit;
 
 use GafarZade98\LaraInvoice\Data\Discount;
+use GafarZade98\LaraInvoice\Enums\DiscountType;
+use GafarZade98\LaraInvoice\Enums\InvoiceStatus;
 use GafarZade98\LaraInvoice\Data\InvoiceItem;
 use GafarZade98\LaraInvoice\Data\Tax;
 use GafarZade98\LaraInvoice\Invoice;
@@ -13,17 +15,17 @@ class InvoiceTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function it_resolves_title_from_status(): void
     {
-        $this->assertSame('Receipt', Invoice::make()->status('paid')->resolveTitle());
-        $this->assertSame('Refund',  Invoice::make()->status('refunded')->resolveTitle());
-        $this->assertSame('Refund',  Invoice::make()->status('partial')->resolveTitle());
-        $this->assertSame('Invoice', Invoice::make()->status('pending')->resolveTitle());
+        $this->assertSame('Receipt', Invoice::make()->status(InvoiceStatus::Paid)->resolveTitle());
+        $this->assertSame('Refund',  Invoice::make()->status(InvoiceStatus::Refunded)->resolveTitle());
+        $this->assertSame('Refund',  Invoice::make()->status(InvoiceStatus::Partial)->resolveTitle());
+        $this->assertSame('Invoice', Invoice::make()->status(InvoiceStatus::Pending)->resolveTitle());
         $this->assertSame('Invoice', Invoice::make()->resolveTitle());
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
     public function it_uses_explicit_title_over_status(): void
     {
-        $invoice = Invoice::make()->status('paid')->title('My Custom Receipt');
+        $invoice = Invoice::make()->status(InvoiceStatus::Paid)->title('My Custom Receipt');
 
         $this->assertSame('My Custom Receipt', $invoice->resolveTitle());
     }
@@ -125,7 +127,7 @@ class InvoiceTest extends TestCase
         // subtotal = 1000, 10% = 100
         $invoice = Invoice::make()
             ->addItem(InvoiceItem::make()->quantity(1)->unitPrice(1000.0))
-            ->addDiscount(Discount::make()->type('percentage')->value(10));
+            ->addDiscount(Discount::make()->type(DiscountType::Percentage)->value(10));
 
         $this->assertSame(100.0, $invoice->getTotalDiscount());
     }
@@ -135,7 +137,7 @@ class InvoiceTest extends TestCase
     {
         $invoice = Invoice::make()
             ->addItem(InvoiceItem::make()->quantity(1)->unitPrice(1000.0))
-            ->addDiscount(Discount::make()->type('fixed')->value(75.0));
+            ->addDiscount(Discount::make()->type(DiscountType::Fixed)->value(75.0));
 
         $this->assertSame(75.0, $invoice->getTotalDiscount());
     }
@@ -146,8 +148,8 @@ class InvoiceTest extends TestCase
         // subtotal = 1000, 10% = 100 + fixed 35 = 135
         $invoice = Invoice::make()
             ->addItem(InvoiceItem::make()->quantity(1)->unitPrice(1000.0))
-            ->addDiscount(Discount::make()->type('percentage')->value(10))
-            ->addDiscount(Discount::make()->type('fixed')->value(35.0));
+            ->addDiscount(Discount::make()->type(DiscountType::Percentage)->value(10))
+            ->addDiscount(Discount::make()->type(DiscountType::Fixed)->value(35.0));
 
         $this->assertSame(135.0, $invoice->getTotalDiscount());
     }
@@ -162,7 +164,7 @@ class InvoiceTest extends TestCase
         // subtotal=1000, discount=100 → base=900, VAT 10%=90
         $invoice = Invoice::make()
             ->addItem(InvoiceItem::make()->quantity(1)->unitPrice(1000.0))
-            ->addDiscount(Discount::make()->type('percentage')->value(10))
+            ->addDiscount(Discount::make()->type(DiscountType::Percentage)->value(10))
             ->addTax(Tax::make()->rate(10));
 
         $this->assertSame(90.0, $invoice->getTotalTax());
@@ -190,7 +192,7 @@ class InvoiceTest extends TestCase
         // subtotal=1000, 10% disc=100 → base=900, VAT 10%=90 → total=990
         $invoice = Invoice::make()
             ->addItem(InvoiceItem::make()->quantity(1)->unitPrice(1000.0))
-            ->addDiscount(Discount::make()->type('percentage')->value(10))
+            ->addDiscount(Discount::make()->type(DiscountType::Percentage)->value(10))
             ->addTax(Tax::make()->rate(10));
 
         $this->assertSame(990.0, $invoice->getTotal());
@@ -207,9 +209,9 @@ class InvoiceTest extends TestCase
                 InvoiceItem::make()
                     ->quantity(1)
                     ->unitPrice(1000.0)
-                    ->addDiscount(Discount::make()->type('percentage')->value(20))
+                    ->addDiscount(Discount::make()->type(DiscountType::Percentage)->value(20))
             )
-            ->addDiscount(Discount::make()->type('percentage')->value(10))
+            ->addDiscount(Discount::make()->type(DiscountType::Percentage)->value(10))
             ->addTax(Tax::make()->rate(10));
 
         $this->assertSame(200.0, $invoice->getTotalItemDiscounts());

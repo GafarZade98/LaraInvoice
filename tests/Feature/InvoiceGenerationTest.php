@@ -5,6 +5,8 @@ namespace GafarZade98\LaraInvoice\Tests\Feature;
 use GafarZade98\LaraInvoice\Data\Address;
 use GafarZade98\LaraInvoice\Data\Buyer;
 use GafarZade98\LaraInvoice\Data\Discount;
+use GafarZade98\LaraInvoice\Enums\DiscountType;
+use GafarZade98\LaraInvoice\Enums\InvoiceStatus;
 use GafarZade98\LaraInvoice\Data\InvoiceItem;
 use GafarZade98\LaraInvoice\Data\PaymentMethod;
 use GafarZade98\LaraInvoice\Data\Seller;
@@ -20,7 +22,7 @@ class InvoiceGenerationTest extends TestCase
         // tax: VAT 11% of 1200 = 132  →  total = 1332
         return Invoice::make()
             ->number('INV-00042')
-            ->status('pending')
+            ->status(InvoiceStatus::Pending)
             ->date('2026-04-08')
             ->dueDate('2026-04-22')
             ->notes('Payment via bank transfer. Please include invoice number in the reference.')
@@ -94,7 +96,7 @@ class InvoiceGenerationTest extends TestCase
         // subtotal: 1*500 = 500, no tax → total = 500
         $svg = Invoice::make()
             ->number('RCP-0001')
-            ->status('paid')
+            ->status(InvoiceStatus::Paid)
             ->date('2026-04-01')
             ->symbol('$')
             ->paid(500)
@@ -114,7 +116,7 @@ class InvoiceGenerationTest extends TestCase
 
         $svg = Invoice::make()
             ->number('RCP-0001')
-            ->status('paid')
+            ->status(InvoiceStatus::Paid)
             ->date('2026-04-01')
             ->brandColor('#16a34a')
             ->symbol('$')
@@ -135,7 +137,7 @@ class InvoiceGenerationTest extends TestCase
     {
         $svg = Invoice::make()
             ->number('REF-0010')
-            ->status('refunded')
+            ->status(InvoiceStatus::Refunded)
             ->date('2026-04-05')
             ->symbol('$')
             ->paid(300)
@@ -154,13 +156,13 @@ class InvoiceGenerationTest extends TestCase
         // subtotal=1000, 10% disc=100 + fixed $35=35 → total=865
         $svg = Invoice::make()
             ->number('INV-0099')
-            ->status('pending')
+            ->status(InvoiceStatus::Pending)
             ->symbol('$')
             ->due(865)
             ->seller(Seller::make()->name('Acme LLC'))
             ->buyer(Buyer::make()->name('Buyer Co'))
-            ->addDiscount(Discount::make()->name('Loyalty Discount')->type('percentage')->value(10))
-            ->addDiscount(Discount::make()->name('Promo Code')->type('fixed')->value(35))
+            ->addDiscount(Discount::make()->name('Loyalty Discount')->type(DiscountType::Percentage)->value(10))
+            ->addDiscount(Discount::make()->name('Promo Code')->type(DiscountType::Fixed)->value(35))
             ->addItem(InvoiceItem::make()->name('Service')->quantity(1)->unitPrice(1000))
             ->toSvg();
 
@@ -175,7 +177,7 @@ class InvoiceGenerationTest extends TestCase
         // subtotal=1000, VAT 15%=150 + WHT 3%=30 → total=1180
         $svg = Invoice::make()
             ->number('INV-0100')
-            ->status('pending')
+            ->status(InvoiceStatus::Pending)
             ->symbol('$')
             ->due(1180)
             ->addTax(Tax::make()->type('VAT')->rate(15))
@@ -196,7 +198,7 @@ class InvoiceGenerationTest extends TestCase
     {
         $svg = Invoice::make()
             ->number('INV-0101')
-            ->status('pending')
+            ->status(InvoiceStatus::Pending)
             ->symbol('$')
             ->seller(Seller::make()->name('Acme LLC'))
             ->buyer(Buyer::make()->name('Buyer Co'))
@@ -206,7 +208,7 @@ class InvoiceGenerationTest extends TestCase
                     ->quantity(1)
                     ->unitPrice(500)
                     ->addTax(Tax::make()->type('VAT')->rate(10)->amount(50))
-                    ->addDiscount(Discount::make()->name('Beta Discount')->type('fixed')->value(10))
+                    ->addDiscount(Discount::make()->name('Beta Discount')->type(DiscountType::Fixed)->value(10))
             )
             ->toSvg();
 
@@ -221,15 +223,15 @@ class InvoiceGenerationTest extends TestCase
 
         $svg = Invoice::make()
             ->number('INV-2026-007')
-            ->status('paid')
+            ->status(InvoiceStatus::Paid)
             ->date('2026-04-08')
             ->dueDate('2026-05-08')
             ->brandColor('#dc2626')
             ->notes('Net 30 terms. Late payments subject to 1.5% monthly interest.')
             ->symbol('$')
             ->addTax(Tax::make()->type('VAT')->rate(5)->id('TX-9900'))
-            ->addDiscount(Discount::make()->name('Early Bird')->type('percentage')->value(15))
-            ->addDiscount(Discount::make()->name('Elvin')->type('percentage')->value(20))
+            ->addDiscount(Discount::make()->name('Early Bird')->type(DiscountType::Percentage)->value(15))
+            ->addDiscount(Discount::make()->name('Elvin')->type(DiscountType::Percentage)->value(20))
             ->groupDiscountsAs('Total Discount')
             ->groupTaxesAs('Total Tax')
             ->paymentMethod(PaymentMethod::make()->label('Wire Transfer'))
@@ -253,7 +255,7 @@ class InvoiceGenerationTest extends TestCase
                     ->description('Wireframes, user flows, and prototype')
                     ->quantity(1)
                     ->unitPrice(1500.00)
-                    ->addDiscount(Discount::make()->name('Salam')->type('percentage')->value(50))
+                    ->addDiscount(Discount::make()->name('Salam')->type(DiscountType::Percentage)->value(50))
             )
             ->addItem(
                 InvoiceItem::make()

@@ -10,6 +10,7 @@ use GafarZade98\LaraInvoice\Data\InvoiceItem;
 use GafarZade98\LaraInvoice\Data\PaymentMethod;
 use GafarZade98\LaraInvoice\Data\Seller;
 use GafarZade98\LaraInvoice\Data\Tax;
+use GafarZade98\LaraInvoice\Enums\InvoiceStatus;
 use GafarZade98\LaraInvoice\Services\PdfConverter;
 use GafarZade98\LaraInvoice\Services\SvgRenderer;
 use GafarZade98\LaraInvoice\Templates\DefaultTemplate;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
 class Invoice
 {
     private ?string $number = null;
-    private ?string $status = null;
+    private ?InvoiceStatus $status = null;
     private ?string $title = null;
     private ?Carbon $date = null;
     private ?Carbon $dueDate = null;
@@ -69,7 +70,7 @@ class Invoice
         return $this;
     }
 
-    public function status(string $status): static
+    public function status(InvoiceStatus $status): static
     {
         $this->status = $status;
         return $this;
@@ -280,7 +281,7 @@ class Invoice
         return $this->number;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?InvoiceStatus
     {
         return $this->status;
     }
@@ -502,10 +503,10 @@ class Invoice
             return $this->title;
         }
 
-        return match (strtolower((string) $this->status)) {
-            'paid'                             => 'Receipt',
-            'refunded', 'partial', 'disputed'  => 'Refund',
-            default                            => 'Invoice',
+        return match ($this->status) {
+            InvoiceStatus::Paid                                                  => 'Receipt',
+            InvoiceStatus::Refunded, InvoiceStatus::Partial, InvoiceStatus::Disputed => 'Refund',
+            default                                                              => 'Invoice',
         };
     }
 
@@ -534,10 +535,10 @@ class Invoice
 
     private function getDocumentType(): string
     {
-        return match (strtolower((string) $this->status)) {
-            'paid'                             => 'receipt',
-            'refunded', 'partial', 'disputed'  => 'refund',
-            default                            => 'invoice',
+        return match ($this->status) {
+            InvoiceStatus::Paid                                                       => 'receipt',
+            InvoiceStatus::Refunded, InvoiceStatus::Partial, InvoiceStatus::Disputed => 'refund',
+            default                                                                   => 'invoice',
         };
     }
 

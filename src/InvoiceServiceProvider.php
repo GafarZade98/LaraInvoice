@@ -13,10 +13,16 @@ class InvoiceServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'larainvoice');
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/../config/invoice.php' => config_path('invoice.php'),
             ], 'invoice-config');
+
+            $this->publishes([
+                __DIR__ . '/../resources/views' => resource_path('views/vendor/larainvoice'),
+            ], 'invoice-views');
         }
     }
 }
