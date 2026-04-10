@@ -17,7 +17,7 @@ class InvoiceTest extends TestCase
     {
         $this->assertSame('Receipt', Invoice::make()->status(InvoiceStatus::Paid)->resolveTitle());
         $this->assertSame('Refund',  Invoice::make()->status(InvoiceStatus::Refunded)->resolveTitle());
-        $this->assertSame('Refund',  Invoice::make()->status(InvoiceStatus::Partial)->resolveTitle());
+        $this->assertSame('Refund',  Invoice::make()->status(InvoiceStatus::PartialRefund)->resolveTitle());
         $this->assertSame('Invoice', Invoice::make()->status(InvoiceStatus::Pending)->resolveTitle());
         $this->assertSame('Invoice', Invoice::make()->resolveTitle());
     }

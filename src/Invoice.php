@@ -11,8 +11,8 @@ use GafarZade98\LaraInvoice\Data\PaymentMethod;
 use GafarZade98\LaraInvoice\Data\Seller;
 use GafarZade98\LaraInvoice\Data\Tax;
 use GafarZade98\LaraInvoice\Enums\InvoiceStatus;
-use GafarZade98\LaraInvoice\Services\PdfConverter;
-use GafarZade98\LaraInvoice\Services\SvgRenderer;
+use GafarZade98\LaraInvoice\Renderer\PdfRenderer;
+use GafarZade98\LaraInvoice\Renderer\SvgRenderer;
 use GafarZade98\LaraInvoice\Templates\DefaultTemplate;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -505,7 +505,7 @@ class Invoice
 
         return match ($this->status) {
             InvoiceStatus::Paid                                                  => 'Receipt',
-            InvoiceStatus::Refunded, InvoiceStatus::Partial, InvoiceStatus::Disputed => 'Refund',
+            InvoiceStatus::Refunded, InvoiceStatus::PartialRefund, InvoiceStatus::Disputed => 'Refund',
             default                                                              => 'Invoice',
         };
     }
@@ -537,7 +537,7 @@ class Invoice
     {
         return match ($this->status) {
             InvoiceStatus::Paid                                                       => 'receipt',
-            InvoiceStatus::Refunded, InvoiceStatus::Partial, InvoiceStatus::Disputed => 'refund',
+            InvoiceStatus::Refunded, InvoiceStatus::PartialRefund, InvoiceStatus::Disputed => 'refund',
             default                                                                   => 'invoice',
         };
     }
@@ -553,7 +553,7 @@ class Invoice
 
     public function toPdf(): string
     {
-        return (new PdfConverter())->convert($this->toSvg());
+        return (new PdfRenderer())->convert($this->toSvg());
     }
 
     public function saveSvg(string $disk, string $path): void

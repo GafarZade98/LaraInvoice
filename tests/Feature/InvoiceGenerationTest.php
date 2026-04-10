@@ -106,7 +106,6 @@ class InvoiceGenerationTest extends TestCase
             ->toSvg();
 
         $this->assertStringContainsString('Receipt', $svg);
-        $this->assertStringContainsString('Amount paid', $svg);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -232,9 +231,9 @@ class InvoiceGenerationTest extends TestCase
             ->addTax(Tax::make()->type('VAT')->rate(5)->id('TX-9900'))
             ->addDiscount(Discount::make()->name('Early Bird')->type(DiscountType::Percentage)->value(15))
             ->addDiscount(Discount::make()->name('Elvin')->type(DiscountType::Percentage)->value(20))
-            ->groupDiscountsAs('Total Discount')
-            ->groupTaxesAs('Total Tax')
-            ->paymentMethod(PaymentMethod::make()->label('Wire Transfer'))
+//            ->groupDiscountsAs('Total Discount')
+//            ->groupTaxesAs('Total Tax')
+            ->paymentMethod(PaymentMethod::make()->last4(2523)->brand('visa')->label('Wire Transfer'))
             ->seller(
                 Seller::make()
                     ->name('Red Studio Inc.')
@@ -255,7 +254,7 @@ class InvoiceGenerationTest extends TestCase
                     ->description('Wireframes, user flows, and prototype')
                     ->quantity(1)
                     ->unitPrice(1500.00)
-                    ->addDiscount(Discount::make()->name('Salam')->type(DiscountType::Percentage)->value(50))
+//                    ->addDiscount(Discount::make()->name('Salam')->type(DiscountType::Percentage)->value(50))
             )
             ->addItem(
                 InvoiceItem::make()

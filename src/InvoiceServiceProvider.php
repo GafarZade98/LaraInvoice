@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GafarZade98\LaraInvoice;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
-class InvoiceServiceProvider extends ServiceProvider
+final class InvoiceServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
@@ -14,6 +17,9 @@ class InvoiceServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'larainvoice');
+
+        // Register all <x-invoice::*> Blade components.
+        Blade::componentNamespace('GafarZade98\\LaraInvoice\\Components', 'invoice');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([

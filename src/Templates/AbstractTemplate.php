@@ -1,48 +1,61 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GafarZade98\LaraInvoice\Templates;
 
 use GafarZade98\LaraInvoice\Contracts\TemplateInterface;
 use GafarZade98\LaraInvoice\Invoice;
-use GafarZade98\LaraInvoice\View\LayoutBuilder;
+use GafarZade98\LaraInvoice\Layout\LayoutContext;
 
 /**
- * Base class for Blade-based invoice templates.
+ * Base class for component-based invoice templates.
  *
- * Extend this class, override view() to point to your own Blade file.
- * Override layout() if you need to customise the data passed to the view.
+ * The template OWNS the LayoutContext — it initialises it before any
+ * Blade rendering occurs, so custom templates can override makeLayoutContext()
+ * to use different page dimensions, margins, or a LayoutContext subclass.
  *
  * Example:
  *
- *   class CompactTemplate extends AbstractTemplate
+ *   class WideTemplate extends AbstractTemplate
  *   {
- *       protected function view(): string
+ *       protected function view(): string { return 'my-app::wide'; }
+ *
+ *       protected function makeLayoutContext(): LayoutContext
  *       {
- *           return 'my-app::compact-invoice';
+ *           return LayoutContext::make(842, 30); // A4 landscape
  *       }
  *   }
- *
- *   Invoice::make()->template(new CompactTemplate())->...
  */
 abstract class AbstractTemplate implements TemplateInterface
 {
-    /**
-     * The Blade view name to render.
-     * e.g. 'larainvoice::default' or 'my-app::invoice'
-     */
+    /** The Blade view to render, e.g. 'larainvoice::templates.default' */
     abstract protected function view(): string;
 
     /**
-     * Build the data array passed to the Blade view.
-     * Override to add, remove, or modify values.
+     * Create (and register as singleton) the LayoutContext for this render pass.
+     * Override to use custom page size, margins, or a LayoutContext subclass.
+     */
+    protected function makeLayoutContext(): LayoutContext
+    {
+        return LayoutContext::make(); // A4, 40 pt margin
+    }
+
+    /**
+     * Data passed to the Blade view.
+     * Override to add extra variables alongside $invoice.
      */
     protected function layout(Invoice $invoice): array
     {
-        return LayoutBuilder::build($invoice);
+        return ['invoice' => $invoice];
     }
 
     final public function render(Invoice $invoice): string
     {
+        // Template initialises the context BEFORE any child component
+        // constructor runs during Blade rendering.
+        $this->makeLayoutContext();
+
         $svg = view($this->view(), $this->layout($invoice))->render();
 
         return '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL . $svg;
